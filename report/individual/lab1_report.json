@@ -1,0 +1,171 @@
+{
+ "seed": 7767,
+ "predictions": {
+  "ml_f1": {
+   "text": "F1 ~0.90-0.93. Recall cao hơn precision một chút vì BoW bắt rất tốt các từ khoá spam mạnh (free, win, txt, claim) nên bắt được phần lớn spam, nhưng dễ nhầm tin ham có chứa các từ đó.",
+   "time": "16:03:38"
+  },
+  "ml_lr": {
+   "text": "lr=0.001: loss giảm rất chậm, sau 300 epoch vẫn còn cao (underfitting). lr=0.5: giảm đều, hội tụ tốt. lr=50: loss dao động mạnh / bùng nổ (overshoot), có thể NaN — bước cập nhật quá lớn nhảy qua điểm cực tiểu.",
+   "time": "16:03:41"
+  },
+  "dl_curve": {
+   "text": "Val loss giảm lúc đầu rồi chững lại và bắt đầu tăng sau ~8-15 epoch (overfit). MLP nhiều khả năng xấp xỉ hoặc chỉ hơn logistic regression rất ít về F1, vì input bag-of-words đã tuyến tính-friendly và dataset nhỏ.",
+   "time": "16:03:49"
+  },
+  "dl_relu": {
+   "text": "Bỏ ReLU thì 2 lớp Linear liên tiếp tương đương MỘT lớp tuyến tính (ma trận hợp thành) → chính là logistic regression. F1 gần như không đổi so với LogReg, và thấp hơn MLP có ReLU một chút.",
+   "time": "16:03:55"
+  },
+  "emb_search": {
+   "text": "Query không chứa từ khoá spam quen thuộc, nhưng embedding hiểu nghĩa 'được chọn nhận quà, trả lời để nhận' → kết quả gần nhất nhiều khả năng là các tin SPAM tương tự về nghĩa (dù khác từ).",
+   "time": "16:06:22"
+  },
+  "emb_tricky": {
+   "text": "Encoder + LogReg đoán đúng nhiều hơn BoW, đặc biệt ở các tin spam ngụy trang (không từ khoá) và tin ham chứa từ khoá. BoW dễ sai cả hai chiều vì chỉ đếm từ.",
+   "time": "16:08:00"
+  },
+  "llm_models": {
+   "text": "Model lớn (gpt-6.1-terra) F1 cao hơn model nhỏ một chút, có thể 0.90-0.95 vs 0.85-0.92. Model lớn đắt gấp ~10 lần (1.00/5.00 vs 0.10/0.50 USD/1M token). LLM có thể ngang hoặc kém hơn 3b embedding+LogReg trên SUB 40 tin vì ít mẫu, nhưng linh hoạt hơn nhiều.",
+   "time": "16:09:47"
+  },
+  "llm_fewshot": {
+   "text": "Few-shot có thể tăng nhẹ F1 (hoặc giảm nếu ví dụ chọn không đại diện). Chi phí mỗi tin tăng khoảng 2-3 lần vì prompt dài thêm ~4 ví dụ (~60-100 token).",
+   "time": "16:09:59"
+  },
+  "tradeoff": {
+   "text": "Trên đường Pareto: '1. BoW + LogReg' (nhanh nhất, lỗi thấp) và '3b. Emb + LogReg' (chậm hơn nhưng ít lỗi hơn). Có thể '4b. LLM lớn' nằm ngoài đường vì chậm mà F1 trên SUB không hơn. Cách bên phải SLA 50ms: 3b/3c/3a (nếu encode chậm) và cả 4a/4b (LLM chắc chắn vượt).",
+   "time": "16:10:19"
+  },
+  "hard_eval": {
+   "text": "Accuracy trên 50 case khó sẽ tụt mạnh so với test thường. BoW+LogReg có thể tụt sâu nhất (chỉ còn ~50-60%) vì bị 'mù' trước các từ viết sai chính tả/né từ khoá (obfuscation) và dễ bị lừa bởi các tin ham chứa từ khoá (ham_looks_spam). Embedding (3b/3c) sẽ trụ vững hơn (~65-75%) nhờ hiểu ngữ nghĩa. LLM (4a) có thể đạt ~70-80%, nhưng nhóm khó nhất với LLM sẽ là 'Prompt injection' (dễ bị lừa đổi nhãn nếu không có prompt phòng thủ).",
+   "time": "16:11:46"
+  }
+ },
+ "checks": {
+  "1.1 vectorize": true,
+  "1.2 sigmoid / predict_proba": true,
+  "1.3 train_logreg": true,
+  "1.4 metrics": true,
+  "2.1 build_mlp": true,
+  "2.2 train_mlp": true,
+  "3.1–3.2 cosine / top_k_similar": true,
+  "3.3 knn_predict": true,
+  "4.2–4.3 prompt / parse_label": false,
+  "4.1 + 4.4 call_openai / llm_classify_batch": false,
+  "tính tay: baseline_accuracy": false,
+  "tính tay: sigmoid_0": true,
+  "tính tay: f1_example": true,
+  "tính tay: cosine_example": true,
+  "tính tay: llm_cost_per_day": true
+ },
+ "experiments": [
+  {
+   "key": "ml_f1",
+   "time": "16:03:38"
+  },
+  {
+   "key": "ml_lr",
+   "time": "16:03:41"
+  },
+  {
+   "key": "dl_curve",
+   "time": "16:03:49"
+  },
+  {
+   "key": "dl_relu",
+   "time": "16:03:55"
+  },
+  {
+   "key": "emb_search",
+   "time": "16:06:22"
+  },
+  {
+   "key": "emb_tricky",
+   "time": "16:08:00"
+  },
+  {
+   "key": "llm_models",
+   "time": "16:09:49"
+  },
+  {
+   "key": "llm_fewshot",
+   "time": "16:10:00"
+  },
+  {
+   "key": "tradeoff",
+   "time": "16:10:22"
+  },
+  {
+   "key": "hard_eval",
+   "time": "16:11:49"
+  },
+  {
+   "key": "hard_eval",
+   "time": "16:13:40"
+  }
+ ],
+ "challenge": 3,
+ "results": {
+  "1. BoW + LogReg (tự code)": {
+   "accuracy": 0.9638709677419355,
+   "precision": 0.9864864864864865,
+   "recall": 0.73,
+   "f1": 0.839080459770115,
+   "f1_SUB": 0.8235294117647058,
+   "train_s": 2.4450874189997194,
+   "msg_per_s": 40129.7282803983,
+   "p50_ms": 0.056815999869286316,
+   "p95_ms": 0.07526869976572922,
+   "usd_per_1k": 0.0
+  },
+  "2. BoW + MLP (deep learning)": {
+   "accuracy": 0.9870967741935484,
+   "precision": 0.9891304347826086,
+   "recall": 0.91,
+   "f1": 0.9479166666666667,
+   "f1_SUB": 0.9473684210526316,
+   "train_s": 5.294841687999906,
+   "msg_per_s": 41412.63576959742,
+   "p50_ms": 0.15414349991260679,
+   "p95_ms": 0.2086431500174512,
+   "usd_per_1k": 0.0
+  },
+  "3a. Encoder (MiniLM) + kNN": {
+   "accuracy": 0.9767741935483871,
+   "precision": 0.8867924528301887,
+   "recall": 0.94,
+   "f1": 0.912621359223301,
+   "f1_SUB": 0.9500000000000001,
+   "train_s": 84.37031914900035,
+   "msg_per_s": 22.988860157101037,
+   "p50_ms": 63.760469000044395,
+   "p95_ms": 133.7166981001701,
+   "usd_per_1k": 0.0
+  },
+  "3b. Encoder (MiniLM) + LogReg": {
+   "accuracy": 0.9870967741935484,
+   "precision": 0.9411764705882353,
+   "recall": 0.96,
+   "f1": 0.9504950495049505,
+   "f1_SUB": 0.9473684210526316,
+   "train_s": 85.87463785000091,
+   "msg_per_s": 27.320620040844474,
+   "p50_ms": 29.323630499675346,
+   "p95_ms": 39.21929680068387,
+   "usd_per_1k": 0.0
+  },
+  "3c. Encoder (MiniLM) + MLP head": {
+   "accuracy": 0.983225806451613,
+   "precision": 0.9393939393939394,
+   "recall": 0.93,
+   "f1": 0.9346733668341709,
+   "f1_SUB": 0.9473684210526316,
+   "train_s": 85.33075383100004,
+   "msg_per_s": 27.49929670628537,
+   "p50_ms": 29.86399800010986,
+   "p95_ms": 40.603839649884314,
+   "usd_per_1k": 0.0
+  }
+ }
+}
